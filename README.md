@@ -22,7 +22,7 @@ El backend se desarrolla utilizando **Express.js** y **PostgreSQL** como base de
 - **Mostrar lista de productos**: Un endpoint que devuelva una lista de productos disponibles.
 - **Carrito de compras**: Permitir agregar productos al carrito.
 - **Pago con Stripe**: Implementar la integración con Stripe para procesar pagos.
-- **Órdenes de compra**: Una sección para mostrar las órdenes de compra y permitir solicitar reembolsos totales o parciales.
+- **Reembolso y Reembolso Parcial**: Una vez realizada la compra, el usuario tiene la opción de elegir que tipo de reembolso quiere.
 
 ### 2. Frontend
 
@@ -34,42 +34,47 @@ El frontend está desarrollado con **React** y tiene las siguientes funcionalida
 - **Visualización de órdenes**: Permitir ver las órdenes de compra con los detalles de los productos.
 - **Reembolsos**: Los usuarios pueden solicitar un reembolso parcial o total de sus órdenes.
 
-## Endpoints del Backend
+## Endpoints principales
 
 ### 1. `/api/products`
 - **GET**: Obtiene la lista de productos disponibles.
 
-### 2. `/api/cart`
-- **POST**: Agregar productos al carrito.
+### 2. `/api/orders/create-order`
+- **POST**: Creacion de la orden de compra con Stripe.
   - **Cuerpo de la solicitud**: 
     ```json
     {
-      "product_id": 1,
-      "quantity": 2
+    "products": [
+        { "id": 4, "quantity": 2, "price": 80 },
+        { "id": 3, "quantity": 1, "price": 25 }
+    ]
     }
+
     ```
 
-### 3. `/api/checkout`
+### 3. `/api/orders/create-checkout-session`
 - **POST**: Realizar pago utilizando Stripe.
-  - **Cuerpo de la solicitud**: 
-    ```json
-    {
-      "cart_id": 1,
-      "payment_method_id": "stripe_payment_method_id"
-    }
-    ```
+
 
 ### 4. `/api/orders`
 - **GET**: Obtiene la lista de órdenes de compra del usuario.
   
-### 5. `/api/refunds`
-- **POST**: Solicitar un reembolso parcial o total.
+### 5. `/api/orders/refund-order`
+- **POST**: Solicitar un reembolso total.
   - **Cuerpo de la solicitud**: 
     ```json
     {
-      "order_id": 1,
-      "refund_type": "partial",  // Puede ser "partial" o "full"
-      "product_ids": [1, 2] // ID de los productos a devolver (solo en reembolso parcial)
+      "session:id":"xxxx"
+    }
+    ```
+### 6. `/api/orders/partial-refund`
+- **POST**: Solicitar un reembolso parcial.
+  - **Cuerpo de la solicitud**: 
+    ```json
+    {
+    "session_id":"cs_test_b1BfVmRiSBKfxssxQqADVAFcg8SoToELCUNU8TLuAeIDaBTimqVWnEPvhS",
+    "product_ids":[1,2],
+    "subtotal":"25.00"
     }
     ```
 
@@ -85,6 +90,9 @@ El frontend está desarrollado con **React** y tiene las siguientes funcionalida
 
 Primero, clona el repositorio desde GitHub:
 
-```bash
+```cmd
 git clone https://github.com/sebatare/prueba-tecnica.git
 cd prueba-tecnica
+cd backend && npm install
+cd ..
+cd frontend && npm install && npx run dev
