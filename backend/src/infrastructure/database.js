@@ -1,23 +1,17 @@
-// src/infrastructure/database.js
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
+const { Pool } = require('pg');  // Importa Pool en lugar de Client
 
-// Cargar variables de entorno desde el archivo .env
-dotenv.config();
-
-// Configuración de la base de datos
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT || 5432, // Puerto por defecto de PostgreSQL
+    user: 'postgres',
+    host: 'localhost',
+    database: 'prueba-tecnica',
+    password: 'admin',
+    port: 5432,  // O el puerto que estés utilizando
 });
 
-// Función para ejecutar una consulta
-const query = (text, params) => {
-    return pool.query(text, params);
-};
+pool.connect()
+    .then(() => console.log('Conectado a la base de datos'))
+    .catch(err => console.error('Error al conectar a la base de datos:', err));
 
-// Exportar la conexión
-module.exports = { pool, query };
+module.exports = {
+    query: (text, params) => pool.query(text, params),  // Exportando la función query del Pool
+};
