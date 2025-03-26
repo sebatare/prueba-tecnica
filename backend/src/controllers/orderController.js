@@ -3,46 +3,23 @@ const dotenv = require('dotenv');
 dotenv.config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('../infrastructure/database');  // Usamos el Pool desde la infraestructura
-const Order = require('../models/orderModel');
-
-
-const getOrderBySessionId = async (session_id) => {
-    try {
-        const result = await db.query('SELECT * FROM orders WHERE stripe_session_id = $1', [session_id]);
-        return result.rows[0];  // Retorna la primera fila si existe
-    } catch (error) {
-        throw new Error('Error al obtener la orden: ' + error.message);
-    }
-};
-
-// Función para obtener los productos de la orden
-const getOrderItems = async (orderId) => {
-    try {
-        const result = await db.query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
-        return result.rows;  // Retorna todos los productos de la orden
-    } catch (error) {
-        throw new Error('Error al obtener los productos de la orden: ' + error.message);
-    }
-};
-
 
 // Crear la orden y la sesión de pago
 exports.createOrder = async (req, res) => {
     const { products } = req.body;
 
     try {
-        // Paso 1: Calcular el monto total de la orden en centavos
+        //Monto total de la orden
         const totalAmount = products.reduce((acc, product) => acc + (product.price * product.quantity), 0);
 
-        // Paso 2: Crear la orden en la base de datos
+        // Ingreso de la orden a la base de datos
         const result = await db.query(
             'INSERT INTO orders (total_amount, status) VALUES ($1, $2) RETURNING *',
             [totalAmount, 'pending']
         );
 
-        const order = result.rows[0]; // Obtener la orden creada
+        const order = result.rows[0];
 
-        // Paso 3: Insertar los productos en la tabla order_items
         for (const product of products) {
             await db.query(
                 'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)',
@@ -50,7 +27,7 @@ exports.createOrder = async (req, res) => {
             );
         }
 
-        // Paso 4: Crear la sesión de pago en Stripe
+        // Sesión de pago de Stripe
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: products.map(product => ({
@@ -68,7 +45,7 @@ exports.createOrder = async (req, res) => {
             cancel_url: `http://localhost:5173/cancel`,
         });
 
-        // Paso 5: Actualizar la orden con el session_id de Stripe
+        // Actualizar la orden con el ID de sesión de Stripe
         await db.query(
             'UPDATE orders SET stripe_session_id = $1 WHERE id = $2',
             [session.id, order.id]
@@ -81,8 +58,9 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-// Función para reembolsar la orden
 
+
+// Controlador para reembolsar la orden
 exports.refundOrder = async (req, res) => {
     try {
         const { session_id } = req.body;
@@ -119,6 +97,7 @@ exports.refundOrder = async (req, res) => {
 };
 
 
+// Actualizacion de estado de la orden
 exports.updateOrderStatus = async (req, res) => {
     try {
         const { session_id } = req.body;
@@ -182,6 +161,7 @@ exports.getRefundDetails = async (req, res) => {
     }
 };
 
+// Controlador de reembolso parcial
 exports.partialRefund = async (req, res) => {
     const { session_id, product_ids, subtotal } = req.body;
     console.log(req.body);

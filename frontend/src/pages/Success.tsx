@@ -6,7 +6,7 @@ const Success = () => {
   const sessionId = searchParams.get('session_id');
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();  // Hook de navegación para redirigir a otra página
+  const navigate = useNavigate();  
 
 
 
