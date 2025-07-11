@@ -1,29 +1,6 @@
 const orderService = require('../services/orderService');
-const dotenv = require('dotenv');
-dotenv.config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const db = require('../infrastructure/database');  // Usamos el Pool desde la infraestructura
-const Order = require('../models/orderModel');
-
-
-const getOrderBySessionId = async (session_id) => {
-    try {
-        const result = await db.query('SELECT * FROM orders WHERE stripe_session_id = $1', [session_id]);
-        return result.rows[0];  // Retorna la primera fila si existe
-    } catch (error) {
-        throw new Error('Error al obtener la orden: ' + error.message);
-    }
-};
-
-// Función para obtener los productos de la orden
-const getOrderItems = async (orderId) => {
-    try {
-        const result = await db.query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
-        return result.rows;  // Retorna todos los productos de la orden
-    } catch (error) {
-        throw new Error('Error al obtener los productos de la orden: ' + error.message);
-    }
-};
 
 
 // Crear la orden y la sesión de pago
@@ -59,7 +36,7 @@ exports.createOrder = async (req, res) => {
                     product_data: {
                         name: `Producto ${product.id}`,
                     },
-                    unit_amount: product.price, // Precio en centavos
+                    unit_amount: Math.round(parseFloat(product.price))
                 },
                 quantity: product.quantity,
             })),
