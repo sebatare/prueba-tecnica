@@ -1,4 +1,4 @@
-# Prueba Técnica - Aplicación de Comercio Electrónico
+# Aplicación de Comercio Electrónico integrado con Stripe
 
 Este es un sistema de comercio electrónico que permite a los usuarios ver productos, agregarlos al carrito, realizar pagos a través de Stripe y gestionar órdenes de compra, incluyendo solicitudes de reembolsos totales o parciales.
 
@@ -16,6 +16,7 @@ El objetivo de este proyecto es desarrollar una aplicación de comercio electró
 ### 1. Backend
 
 El backend se desarrolla utilizando **Express.js** y **PostgreSQL** como base de datos.
+Ejecute archivo seed.js para cargar base de datos dentro de backend/src.
 
 #### Funcionalidades requeridas:
 
@@ -37,44 +38,51 @@ El frontend está desarrollado con **React** y tiene las siguientes funcionalida
 ## Endpoints principales
 
 ### 1. `/api/products`
+
 - **GET**: Obtiene la lista de productos disponibles.
 
 ### 2. `/api/orders/create-order`
+
 - **POST**: Creacion de la orden de compra con Stripe.
-  - **Cuerpo de la solicitud**: 
+
+  - **Cuerpo de la solicitud**:
+
     ```json
     {
-    "products": [
+      "products": [
         { "id": 4, "quantity": 2, "price": 80 },
         { "id": 3, "quantity": 1, "price": 25 }
-    ]
+      ]
     }
-
     ```
 
 ### 3. `/api/orders/create-checkout-session`
+
 - **POST**: Realizar pago utilizando Stripe.
 
-
 ### 4. `/api/orders`
+
 - **GET**: Obtiene la lista de órdenes de compra del usuario.
-  
+
 ### 5. `/api/orders/refund-order`
+
 - **POST**: Solicitar un reembolso total.
-  - **Cuerpo de la solicitud**: 
+  - **Cuerpo de la solicitud**:
     ```json
     {
-      "session:id":"xxxx"
+      "session:id": "xxxx"
     }
     ```
+
 ### 6. `/api/orders/partial-refund`
+
 - **POST**: Solicitar un reembolso parcial.
-  - **Cuerpo de la solicitud**: 
+  - **Cuerpo de la solicitud**:
     ```json
     {
-    "session_id":"cs_test_b1BfVmRiSBKfxssxQqADVAFcg8SoToELCUNU8TLuAeIDaBTimqVWnEPvhS",
-    "product_ids":[1,2],
-    "subtotal":"25.00"
+      "session_id": "cs_test_b1BfVmRiSBKfxssxQqADVAFcg8SoToELCUNU8TLuAeIDaBTimqVWnEPvhS",
+      "product_ids": [1, 2],
+      "subtotal": "25.00"
     }
     ```
 
@@ -91,8 +99,9 @@ El frontend está desarrollado con **React** y tiene las siguientes funcionalida
 Primero, clona el repositorio desde GitHub:
 
 ```cmd
-git clone https://github.com/sebatare/prueba-tecnica.git
-cd prueba-tecnica
+git clone https://github.com/sebatare/ecommerce-stripe.git
+cd ecommerce-stripe
 cd backend && npm install
 cd ..
 cd frontend && npm install && npx run dev
+```
