@@ -1,23 +1,21 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
-// Define el tipo para el producto
 interface Product {
   id: number; // El id es un número (int)
   name: string;
   description: string;
   price: number;
   stock: number;
-  imageUrl?: string; // Este campo es opcional, ya que mencionaste que no tienes imágenes por ahora
+  imageUrl?: string; 
 }
 
-// Define el tipo para el contexto del carrito
 interface CartContextType {
   cart: Product[]; // Un arreglo de productos en el carrito
   addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
-  cartCount: number; // Este es el contador de productos en el carrito
+  cartCount: number; 
 }
 
 
@@ -34,11 +32,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (existingProduct) {
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, stock: item.stock + 1 } // Incrementa el stock si el producto ya está en el carrito
+            ? { ...item, stock: item.stock + 1 }
             : item
         );
       }
-      return [...prevCart, { ...product, stock: 1 }]; // Si el producto no está en el carrito, lo agrega con un stock inicial de 1
+      return [...prevCart, { ...product, stock: 1 }]; 
     });
   };
 
